@@ -1,5 +1,11 @@
 <?php
-    declare(strict_types=1);
+    declare(strict_types=1);require "vendor/autoload.php";
+
+    // $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    // $dotenv->load();
+    
+    // require 'autoload.php';
+    // require 'routes.php';
 ?>
 <!DOCTYPE html>
 <html lang="uz">
@@ -8,13 +14,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR CODE Generator and Scanner</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet"> 
 </head>
-<body class="bg-light">
+<body>
     <div class="container mt-5">
-        <h1 class="text-center text-primary mb-4">QR CODE Generator & Scanner</h1>
-        
+        <h1>QR CODE Generator & Scanner</h1>
         <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header">
                 <h2>TEXT 2 QR CODE</h2>
             </div>
             <div class="card-body">
@@ -54,9 +60,8 @@
                 ?>
             </div>
         </div>
-
         <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header">
                 <h2>QR CODE 2 TEXT</h2>
             </div>
             <div class="card-body">
@@ -79,7 +84,7 @@
                         echo "<div class='alert alert-danger mt-3'>File upload failed!</div>";
                     } else {
                         if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
-                            echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+                            echo "<div class='alert alert-danger mt-3'>Sorry, only JPG, JPEG, PNG files are allowed.</div>";
                             exit;
                         }
                         $qrReader = new QrReader($uploadedFile);
@@ -88,7 +93,7 @@
                         if ($decodedText) {
                             echo "<div class='alert alert-success mt-3'>QR code text: <strong>$decodedText</strong></div>";
                         } else {
-                            echo "<div class='alert alert-danger mt-3'>Error occurred in reading the QR code!<br>Only QR codes allowed !</div>";
+                            echo "<div class='alert alert-danger mt-3'>Error occurred in reading the QR code!<br>Only QR codes allowed!</div>";
                         }
                     }
                 }
@@ -97,7 +102,6 @@
         </div>
     </div>
 
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

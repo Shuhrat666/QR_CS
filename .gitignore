@@ -2,5 +2,6 @@
 logs.txt
 vendor
 qrcodes
+task.py
 
 test1.php

@@ -73,17 +73,22 @@
 
                 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["qrImage"]) && isset($_POST["decode"])) {
                     $uploadedFile = $_FILES["qrImage"]["tmp_name"];
-
+                    $imageFileType = strtolower(pathinfo($_FILES["qrImage"]["name"], PATHINFO_EXTENSION));
+        
                     if (!is_uploaded_file($uploadedFile)) {
                         echo "<div class='alert alert-danger mt-3'>File upload failed!</div>";
                     } else {
+                        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                            echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+                            exit;
+                        }
                         $qrReader = new QrReader($uploadedFile);
                         $decodedText = $qrReader->text();
 
                         if ($decodedText) {
                             echo "<div class='alert alert-success mt-3'>QR code text: <strong>$decodedText</strong></div>";
                         } else {
-                            echo "<div class='alert alert-danger mt-3'>Error occurred in reading the QR code!</div>";
+                            echo "<div class='alert alert-danger mt-3'>Error occurred in reading the QR code!<br>Only QR codes allowed !</div>";
                         }
                     }
                 }

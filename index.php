@@ -67,21 +67,26 @@
     <?php
 
         use Zxing\QrReader;
-
         if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["qrImage"]) && isset($_POST["decode"])) {
-            
-            $uploadedFile = $_FILES["qrImage"]["tmp_name"];
 
-                  
+            $uploadedFile = $_FILES["qrImage"]["tmp_name"];
+            $imageFileType = strtolower(pathinfo($_FILES["qrImage"]["name"], PATHINFO_EXTENSION));
+        
+            if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+                exit;
+            }
+        
             $qrReader = new QrReader($uploadedFile);
             $decodedText = $qrReader->text();
-
+        
             if ($decodedText) {
                 echo "<p>QR code text: <strong>$decodedText</strong></p>";
             } else {
-                echo "<p>Error occured in reading the QR code !</p>";
+                echo "<p>Error occurred in reading the QR code!<br>Only QR codes allowed !</p>";
             }
-        }   
+        }
+        
         
     ?>
     

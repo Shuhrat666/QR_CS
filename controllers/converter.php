@@ -5,7 +5,6 @@
 
     use Zxing\QrReader;
     use chillerlan\QRCode\QRCode;
-    use chillerlan\QRCode\QROptions;
     
     class QR{
         public function text2qr() {
@@ -13,9 +12,16 @@
             if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["text"])) {
 
                 $text = $_POST["text"];
+                $qrCodeFile = "qrcodes/".uniqid() . ".png";
+        
+                $qrcode=new QRCode();
+                $qrcode->render($text, $qrCodeFile);
+        
                 echo "<p>QR code generated successfully !</p>";
-                echo "<a href=".(new QRCode)->render($text)." download><img src=".(new QRCode)->render($text)." alt='Not Found !' width='200px' height='200px'></a>";
+                echo "<a href='$qrCodeFile' download><img src='$qrCodeFile' alt='Not Found !' width='200px' height='200px'></a>";
                 echo "<p>Click on the QR code to download !</p>";
+
+                //unlink($qrCodeFile);
             }
         }
     

@@ -80,7 +80,7 @@ class Bot {
 
   public function prepareTextToQr(){
 
-    new QR_code_()->setQuery('text2qr');
+    (new QR_code_())->setQuery('text2qr');
 
     $this->http->post('sendMessage', [
       'form_params' => [
@@ -92,7 +92,7 @@ class Bot {
 
   public function prepareQrToText(){
 
-    new QR_code_()->setQuery('qr2text');
+    (new QR_code_())->setQuery('qr2text');
 
     $this->http->post('sendMessage', [
       'form_params' => [
@@ -105,10 +105,10 @@ class Bot {
   public function handleDefaultCommand($text, string $called_query){
 
     if ($called_query == 'text2qr') {
-      $this->http->post('sendImage', [
+      $this->http->post('sendPhoto', [
         'form_params' => [
           'chat_id' => $this->chatId,
-          'photo'   => new Converter()->text2qr($text),
+          'photo'   => (new Converter())->text2qr($text),
           'reply_markup' => json_encode([
             'keyboard' => [
               [['text' => '/Text -> QR'], 

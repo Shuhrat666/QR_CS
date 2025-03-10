@@ -31,8 +31,17 @@
                 </form>
 
     <?php
-        $web=new Converter();
-        $web->text2qr();
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["text"])) {
+            $web=new Converter();
+            $qr=$web->text2qr($_POST["text"]);
+            if (file_exists($qr)) {
+                echo "<p>QR code generated successfully!</p>";
+                echo "<a href='$qr' download><img src='$qr' alt='QR Code not found!' width='200px' height='200px'></a>";
+                echo "<p>Click on the QR code to download!</p>";
+            } else {
+                echo "<p>Failed to save or display the QR code.</p>";
+            }
+        }
     ?>
 
             </div>
@@ -51,8 +60,17 @@
                 </form>
 
     <?php
-        $web=new Converter();
-        $web->qr2txt();
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["qrImage"]) && isset($_POST["decode"])) {
+            $web=new Converter();
+            $uploadedFile = $_FILES["qrImage"]["tmp_name"];
+            $text=$web->qr2txt($uploadedFile);
+            if ($text) {
+                echo "<p>QR code text: <strong>$text</strong></p>";
+            } else {
+                echo "<p>Error occurred in reading the QR code!<br>Only QR codes allowed !</p>";
+            }
+            
+        }
     ?>
     
             </div>

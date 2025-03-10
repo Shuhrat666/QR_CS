@@ -7,6 +7,8 @@ require 'vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use Exception;
+use QR_code_;
+use Web\Converter;
 
 class Bot {
   public  string $text;
@@ -28,9 +30,13 @@ class Bot {
     $this->chatId    = $update->message->chat->id;
     $this->firstName = $update->message->chat->first_name;
 
+    $called_query=(new QR_code_())->getQuery();
+
     match($this->text){
       '/start' => $this->handleStartCommand(),
-        
+      '/Text -> QR' => $this->prepareTextToQr(),
+      '/QR -> Text' => $this->prepareQrToText(),
+      default => $this->handleDefaultCommand($this->text, $called_query),
     };
 
   }
@@ -47,10 +53,11 @@ class Bot {
       $response = json_decode($response->getBody()->getContents());
         
       return $response->description;
-      } catch(Exception $e){
+    } 
+    catch(Exception $e){
         return $e->getMessage();
-      }
     }
+  }
   public function handleStartCommand(){
 
     $text = "Assalomu alaykum $this->firstName";
@@ -59,11 +66,90 @@ class Bot {
     $this->http->post('sendMessage', [
       'form_params' => [
         'chat_id' => $this->chatId,
-        'text'    => $text
+        'text'    => $text,
+        'reply_markup' => json_encode([
+          'keyboard' => [
+            [['text' => '/Text -> QR'], 
+            ['text' => '/QR -> Text']]
+          ],
+          'resize_keyboard' => true
+        ]),
       ]
     ]); 
   }
-    
+
+  public function prepareTextToQr(){
+
+    new QR_code_()->setQuery('text2qr');
+
+    $this->http->post('sendMessage', [
+      'form_params' => [
+        'chat_id' => $this->chatId,
+        'text'    => 'Matn kiriting :',
+      ]
+    ]); 
+  }
+
+  public function prepareQrToText(){
+
+    new QR_code_()->setQuery('qr2text');
+
+    $this->http->post('sendMessage', [
+      'form_params' => [
+        'chat_id' => $this->chatId,
+        'text'    => 'QR rasmini yuklang :',
+      ]
+    ]); 
+  }
+
+  public function handleDefaultCommand($text, string $called_query){
+
+    if ($called_query == 'text2qr') {
+      $this->http->post('sendImage', [
+        'form_params' => [
+          'chat_id' => $this->chatId,
+          'photo'   => new Converter()->text2qr($text),
+          'reply_markup' => json_encode([
+            'keyboard' => [
+              [['text' => '/Text -> QR'], 
+              ['text' => '/QR -> Text']]
+            ],
+            'resize_keyboard' => true
+          ]),
+        ]
+      ]); 
+    } 
+    else if($called_query == 'qr2text') {
+      $this->http->post('sendMessage', [
+        'form_params' => [
+          'chat_id' => $this->chatId,
+          'text'    => (new Converter())->qr2txt($text),
+          'reply_markup' => json_encode([
+            'keyboard' => [
+              [['text' => '/Text -> QR'], 
+              ['text' => '/QR -> Text']]
+            ],
+            'resize_keyboard' => true
+          ]),
+        ]
+      ]); 
+    }
+    else {
+      $this->http->post('sendMessage', [
+        'form_params' => [
+          'chat_id' => $this->chatId,
+          'text'    => 'Noto\'g\'ri buyruq! Oldin amalni tanlang !:',
+          'reply_markup' => json_encode([
+            'keyboard' => [
+              [['text' => '/Text -> QR'], 
+              ['text' => '/QR -> Text']]
+            ],
+            'resize_keyboard' => true
+          ]),
+        ]
+      ]); 
+    } 
+  } 
 }
 
 ?>

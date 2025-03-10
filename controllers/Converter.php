@@ -1,25 +1,35 @@
 <?php
     declare(strict_types= 1);
 
+    namespace Web;
     require 'vendor/autoload.php';
 
     use Zxing\QrReader;
     use chillerlan\QRCode\QRCode;
-    
-    class QR{
+    use chillerlan\QRCode\QROptions;
+    class Converter{
         public function text2qr() {
         
             if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["text"])) {
 
                 $text = $_POST["text"];
                 $qrCodeFile = "qrcodes/".uniqid() . ".png";
-        
-                $qrcode=new QRCode();
+
+                $options = new QROptions([
+                    'outputType' => QRCode::OUTPUT_IMAGE_PNG,
+                    'eccLevel' => QRCode::ECC_L,
+                ]);
+
+                $qrcode = new QRCode($options);
                 $qrcode->render($text, $qrCodeFile);
         
-                echo "<p>QR code generated successfully !</p>";
-                echo "<a href='$qrCodeFile' download><img src='$qrCodeFile' alt='Not Found !' width='200px' height='200px'></a>";
-                echo "<p>Click on the QR code to download !</p>";
+                if (file_exists($qrCodeFile)) {
+                    echo "<p>QR code generated successfully!</p>";
+                    echo "<a href='$qrCodeFile' download><img src='$qrCodeFile' alt='QR Code not found!' width='200px' height='200px'></a>";
+                    echo "<p>Click on the QR code to download!</p>";
+                } else {
+                    echo "<p>Failed to save or display the QR code.</p>";
+                }
 
                 //unlink($qrCodeFile);
             }

@@ -1,5 +1,9 @@
 <?php
     declare(strict_types= 1);
+
+    require 'vendor/autoload.php';
+
+    use Web\Converter;
 ?>
 <!DOCTYPE html>
 <html lang="uz">
@@ -27,9 +31,7 @@
                 </form>
 
     <?php
-        require_once __DIR__ ."/converter.php";
-
-        $web=new QR();
+        $web=new Converter();
         $web->text2qr();
     ?>
 
@@ -49,9 +51,7 @@
                 </form>
 
     <?php
-        require_once __DIR__ ."/converter.php";
-
-        $web=new QR();
+        $web=new Converter();
         $web->qr2txt();
     ?>
     

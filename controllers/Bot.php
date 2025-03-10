@@ -1,9 +1,12 @@
 <?php
 declare(strict_types=1);
 
+namespace Bot;
+
 require 'vendor/autoload.php';
 
 use GuzzleHttp\Client;
+use Exception;
 
 class Bot {
   public  string $text;
@@ -25,23 +28,42 @@ class Bot {
     $this->chatId    = $update->message->chat->id;
     $this->firstName = $update->message->chat->first_name;
 
-    }
-
-    public function setWebhook(string $url): string {
-        try{
-          $response = $this->http->post('setWebhook', [
-            'form_params' => [
-              'url'                  => $url,
-              'drop_pending_updates' => true
-            ]
-          ]);
-    
-          $response = json_decode($response->getBody()->getContents());
+    match($this->text){
+      '/start' => $this->handleStartCommand(),
         
-          return $response->description;
-        } catch(Exception $e){
-          return $e->getMessage();
-        }
+    };
+
+  }
+
+  public function setWebhook(string $url): string {
+    try{
+      $response = $this->http->post('setWebhook', [
+        'form_params' => [
+          'url'                  => $url,
+          'drop_pending_updates' => true,
+        ]
+      ]);
+    
+      $response = json_decode($response->getBody()->getContents());
+        
+      return $response->description;
+      } catch(Exception $e){
+        return $e->getMessage();
       }
+    }
+  public function handleStartCommand(){
+
+    $text = "Assalomu alaykum $this->firstName";
+    $text .= "\n\nBotimizga xush kelibsiz!";
+      
+    $this->http->post('sendMessage', [
+      'form_params' => [
+        'chat_id' => $this->chatId,
+        'text'    => $text
+      ]
+    ]); 
+  }
     
 }
+
+?>

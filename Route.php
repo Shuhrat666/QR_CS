@@ -27,6 +27,6 @@ class Route {
   }
 
   public static function handleWeb(): void {
-    require 'controllers/web.php'; 
+    require 'view/web.php'; 
   }
 }

@@ -3,15 +3,14 @@ declare(strict_types=1);
 
 namespace Bot;
 
-require 'vendor/autoload.php';
-
 use GuzzleHttp\Client;
 use Exception;
 use QR_code_;
 use Web\Converter;
-use Interfaces\BotInterface;
+use Interfaces\BotInterface; 
 
-class Bot implements BotInterface{
+class Bot implements BotInterface{ 
+  
   public  string $text;
   public  int    $chatId;
   public  string $firstName;
@@ -107,16 +106,25 @@ class Bot implements BotInterface{
 
     if ($called_query == 'text2qr') {
       $this->http->post('sendPhoto', [
-        'form_params' => [
-          'chat_id' => $this->chatId,
-          'photo'   => (new Converter())->text2qr($text),
-          'reply_markup' => json_encode([
-            'keyboard' => [
-              [['text' => '/Text -> QR'], 
-              ['text' => '/QR -> Text']]
-            ],
-            'resize_keyboard' => true
-          ]),
+        'multipart' => [
+          [
+            'name'=>'chat_id',
+            'contents' => $this->chatId
+          ],
+          [
+            'name'=>'photo',
+            'contents' => fopen((new Converter())->text2qr($text), 'r')
+          ],
+          [
+            'name'=>'reply_markup',
+            'contents' => json_encode([
+              'keyboard' => [
+                [['text' => '/Text -> QR'], 
+                ['text' => '/QR -> Text']]
+              ],
+              'resize_keyboard' => true
+            ])
+          ]
         ]
       ]); 
     } 

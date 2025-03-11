@@ -2,7 +2,6 @@
     declare(strict_types= 1);
 
     namespace Web;
-    require 'vendor/autoload.php';
 
     use Zxing\QrReader;
     use chillerlan\QRCode\QRCode;

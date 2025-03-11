@@ -1,7 +1,6 @@
 .env
 logs.txt
 vendor
-qrcodes
-task.py
-
+composer.lock
+source
 test1.php

@@ -1,4 +1,9 @@
-# To run the project, first run localhost :
+# To begin with, execute migration files ( mi31.php ) :
+```bash
+php mig31.php
+```
+
+# Then run the localhost :
 ```bash
 php localhost:8000
 ```

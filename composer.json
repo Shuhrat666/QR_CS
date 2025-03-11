@@ -10,9 +10,8 @@
         "psr-4": {
             "Bot\\": "controllers/",
             "Web\\": "controllers/",
-            "Route\\": "./"
+            "Route\\": "./",
+            "Interfaces\\": "interfaces/"
         }
     }
-    
-   
 }

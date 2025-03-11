@@ -9,8 +9,9 @@ use GuzzleHttp\Client;
 use Exception;
 use QR_code_;
 use Web\Converter;
+use Interfaces\BotInterface;
 
-class Bot {
+class Bot implements BotInterface{
   public  string $text;
   public  int    $chatId;
   public  string $firstName;

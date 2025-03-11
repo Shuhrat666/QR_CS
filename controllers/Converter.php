@@ -7,7 +7,9 @@
     use Zxing\QrReader;
     use chillerlan\QRCode\QRCode;
     use chillerlan\QRCode\QROptions;
-    class Converter{
+    use Interfaces\WebInterface;
+
+    class Converter implements WebInterface{
         public function text2qr($t_text) {
 
             $text = $t_text;

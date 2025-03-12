@@ -8,10 +8,6 @@ use Exception;
 use Interfaces\BotInterface;
 use QR_code\QR_code;
 use Web\Converter;
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
 
 class Bot implements BotInterface{ 
   
@@ -108,29 +104,24 @@ class Bot implements BotInterface{
       ]
     ]); 
   }
-
-  public function resolveTelegramFilePath($fileId, $token){
-
-    if (!is_writable(__DIR__ . '/../qr_codes/')) {
-        mkdir(__DIR__ . '/../qr_codes/', 0777, true);
-    }
-
+  
+  public function resolveTelegramFilePath($fileId, $token): string {
     $response = $this->http->get("getFile", [
         'query' => ['file_id' => $fileId]
     ]);
-    $data = json_decode($response->getBody(), true);
+
+    $responseBody = $response->getBody()->getContents();
+    $data = json_decode($responseBody, true);
 
     if (!isset($data['result']['file_path'])) {
         throw new Exception("Unable to resolve file path from Telegram API.");
     }
 
-    $fileUrl = "https://api.telegram.org/file/bot" .$token. "/" . $data['result']['file_path'];
-
+    $fileUrl = "https://api.telegram.org/file/bot" . $token . "/" . $data['result']['file_path'];
     $localPath = __DIR__ . '/../qr_codes/' . basename($data['result']['file_path']);
     file_put_contents($localPath, file_get_contents($fileUrl));
     return $localPath;
-  }
-
+}
 
   public function handleDefaultCommand(string|int $text, array $photo, string $called_query){
 
@@ -159,40 +150,29 @@ class Bot implements BotInterface{
         ]
       ]); 
     } 
-    else if($called_query == 'qr2text') {
-
+    else if ($called_query == 'qr2text') {
       if (!empty($this->photo) && isset($this->photo[0]->file_id)) {
-
-        $fileId = $this->photo[0]->file_id;
-        $filePath = $this->resolveTelegramFilePath($fileId, $_ENV["TOKEN"]);
-        $decodedText = (new Converter())->qr2txt($filePath);
-      } 
-      else {
-        $decodedText = "No QR uploaded!";
+          $fileId = $this->photo[0]->file_id;
+          $filePath = $this->resolveTelegramFilePath($fileId, $_ENV["TOKEN"]);
+          $decodedText = (new Converter())->qr2txtbot($filePath);
+      } else {
+          $decodedText = "No QR uploaded!";
       }
-
-    $this->http->post('sendMessage', [
-        'multipart' => [
-            [
-                'name' => 'chat_id',
-                'contents' => $this->chatId,
-            ],
-            [
-                'name' => 'text',
-                'contents' => $decodedText,
-            ],
-            [
-                'name' => 'reply_markup',
-                'contents' => json_encode([
-                    'keyboard' => [
-                        [['text' => '/Text -> QR'], ['text' => '/QR -> Text']],
-                    ],
-                    'resize_keyboard' => true,
-                ]),
-            ],
-        ],
-    ]);
-    }
+  
+      $this->http->post('sendMessage', [
+          'form_params' => [
+            'chat_id' => $this->chatId,
+            'text'    => $decodedText,
+            'reply_markup' => json_encode([
+                'keyboard' => [
+                [['text' => '/Text -> QR'], 
+                ['text' => '/QR -> Text']]
+              ],
+              'resize_keyboard' => true
+            ]),
+          ]
+      ]);
+    }  
     else {
       $this->http->post('sendMessage', [
         'form_params' => [

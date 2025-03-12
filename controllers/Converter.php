@@ -26,11 +26,26 @@
                 
             return $qrCodeFile;
         }
+
+        public function qr2txtbot($uploadedFilePath) {
+            $imageFileType = strtolower(pathinfo($uploadedFilePath, PATHINFO_EXTENSION));
+        
+            if (!in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                return "Error: Only JPG, JPEG, and PNG files are allowed.";
+            }
+        
+            $qrReader = new QrReader($uploadedFilePath);
+            $decodedText = $qrReader->text();
+        
+            return $decodedText ?: "Error: Unable to decode QR code.";
+        }
+        
+        
         
     
         public function qr2txt($uploaded) {
     
-            $uploadedFile = $uploaded;    //$_FILES["qrImage"]["tmp_name"];
+            $uploadedFile = $uploaded;   
             $imageFileType = strtolower(pathinfo($_FILES["qrImage"]["name"], PATHINFO_EXTENSION));
             
             if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {

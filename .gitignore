@@ -4,3 +4,4 @@ vendor
 composer.lock
 source
 test1.php
+qr_codes

@@ -63,6 +63,8 @@ class Bot implements BotInterface{
   }
   public function handleStartCommand(){
 
+    (new QR_code())->setQuery('default');
+
     $text = "Assalomu alaykum $this->firstName";
     $text .= "\n\nBotimizga xush kelibsiz!";
       
@@ -135,7 +137,10 @@ class Bot implements BotInterface{
           [
             'name'=>'photo',
             'contents' => fopen((new Converter())->text2qr($text), 'r'),
-            'caption' => 'QR matni: ' . $text
+          ],
+          [
+            'name'=>'caption',
+            'contents' => "'".$text."'  uchun QR kod !"
           ],
           [
             'name'=>'reply_markup',
@@ -146,7 +151,7 @@ class Bot implements BotInterface{
               ],
               'resize_keyboard' => true
             ])
-          ]
+            ]
         ]
       ]); 
     } 
@@ -162,7 +167,7 @@ class Bot implements BotInterface{
       $this->http->post('sendMessage', [
           'form_params' => [
             'chat_id' => $this->chatId,
-            'text'    => $decodedText,
+            'text'    => "QR info : '".$decodedText."'",
             'reply_markup' => json_encode([
                 'keyboard' => [
                 [['text' => '/Text -> QR'], 

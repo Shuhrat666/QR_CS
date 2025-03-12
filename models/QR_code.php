@@ -1,16 +1,20 @@
 <?php
 declare(strict_types=1);
 
+namespace QR_code;
 require 'vendor/autoload.php';
 
 use Dotenv\Dotenv;
+use \PDO;
+use \Exception;
+use DB\DB;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 require_once __DIR__. '/../DB.php';
 
-class QR_code_ {
+class QR_code {
   private PDO $db;
 
   public function __construct(){

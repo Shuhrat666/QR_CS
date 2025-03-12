@@ -5,15 +5,20 @@ namespace Bot;
 
 use GuzzleHttp\Client;
 use Exception;
-use QR_code_;
+use Interfaces\BotInterface;
+use QR_code\QR_code;
 use Web\Converter;
-use Interfaces\BotInterface; 
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
 class Bot implements BotInterface{ 
   
   public  string $text;
   public  int    $chatId;
   public  string $firstName;
+  public  array  $photo;
 
   private string $api;
   private        $http;
@@ -26,17 +31,19 @@ class Bot implements BotInterface{
   public function handle(string $update){
     $update = json_decode($update);
 
-    $this->text      = $update->message->text;
+    $this->text = $update->message->text ?? 'No text entered !';
+    $this->photo = $update->message->photo ?? [];
     $this->chatId    = $update->message->chat->id;
     $this->firstName = $update->message->chat->first_name;
+  
 
-    $called_query=(new QR_code_())->getQuery();
+    $called_query=(new QR_code())->getQuery();
 
     match($this->text){
       '/start' => $this->handleStartCommand(),
       '/Text -> QR' => $this->prepareTextToQr(),
       '/QR -> Text' => $this->prepareQrToText(),
-      default => $this->handleDefaultCommand($this->text, $called_query),
+      default => $this->handleDefaultCommand($this->text, $this->photo, $called_query),
     };
 
   }
@@ -80,7 +87,7 @@ class Bot implements BotInterface{
 
   public function prepareTextToQr(){
 
-    (new QR_code_())->setQuery('text2qr');
+    (new QR_code())->setQuery('text2qr');
 
     $this->http->post('sendMessage', [
       'form_params' => [
@@ -92,7 +99,7 @@ class Bot implements BotInterface{
 
   public function prepareQrToText(){
 
-    (new QR_code_())->setQuery('qr2text');
+    (new QR_code())->setQuery('qr2text');
 
     $this->http->post('sendMessage', [
       'form_params' => [
@@ -102,7 +109,30 @@ class Bot implements BotInterface{
     ]); 
   }
 
-  public function handleDefaultCommand($text, string $called_query){
+  public function resolveTelegramFilePath($fileId, $token){
+
+    if (!is_writable(__DIR__ . '/../qr_codes/')) {
+        mkdir(__DIR__ . '/../qr_codes/', 0777, true);
+    }
+
+    $response = $this->http->get("getFile", [
+        'query' => ['file_id' => $fileId]
+    ]);
+    $data = json_decode($response->getBody(), true);
+
+    if (!isset($data['result']['file_path'])) {
+        throw new Exception("Unable to resolve file path from Telegram API.");
+    }
+
+    $fileUrl = "https://api.telegram.org/file/bot" .$token. "/" . $data['result']['file_path'];
+
+    $localPath = __DIR__ . '/../qr_codes/' . basename($data['result']['file_path']);
+    file_put_contents($localPath, file_get_contents($fileUrl));
+    return $localPath;
+  }
+
+
+  public function handleDefaultCommand(string|int $text, array $photo, string $called_query){
 
     if ($called_query == 'text2qr') {
       $this->http->post('sendPhoto', [
@@ -113,7 +143,8 @@ class Bot implements BotInterface{
           ],
           [
             'name'=>'photo',
-            'contents' => fopen((new Converter())->text2qr($text), 'r')
+            'contents' => fopen((new Converter())->text2qr($text), 'r'),
+            'caption' => 'QR matni: ' . $text
           ],
           [
             'name'=>'reply_markup',
@@ -129,19 +160,38 @@ class Bot implements BotInterface{
       ]); 
     } 
     else if($called_query == 'qr2text') {
-      $this->http->post('sendMessage', [
-        'form_params' => [
-          'chat_id' => $this->chatId,
-          'text'    => (new Converter())->qr2txt($text),
-          'reply_markup' => json_encode([
-            'keyboard' => [
-              [['text' => '/Text -> QR'], 
-              ['text' => '/QR -> Text']]
+
+      if (!empty($this->photo) && isset($this->photo[0]->file_id)) {
+
+        $fileId = $this->photo[0]->file_id;
+        $filePath = $this->resolveTelegramFilePath($fileId, $_ENV["TOKEN"]);
+        $decodedText = (new Converter())->qr2txt($filePath);
+      } 
+      else {
+        $decodedText = "No QR uploaded!";
+      }
+
+    $this->http->post('sendMessage', [
+        'multipart' => [
+            [
+                'name' => 'chat_id',
+                'contents' => $this->chatId,
             ],
-            'resize_keyboard' => true
-          ]),
-        ]
-      ]); 
+            [
+                'name' => 'text',
+                'contents' => $decodedText,
+            ],
+            [
+                'name' => 'reply_markup',
+                'contents' => json_encode([
+                    'keyboard' => [
+                        [['text' => '/Text -> QR'], ['text' => '/QR -> Text']],
+                    ],
+                    'resize_keyboard' => true,
+                ]),
+            ],
+        ],
+    ]);
     }
     else {
       $this->http->post('sendMessage', [

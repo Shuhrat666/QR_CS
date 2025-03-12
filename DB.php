@@ -1,5 +1,8 @@
 <?php
+namespace DB;
 
+use PDO;
+use PDOException;
 class DB {
   public PDO $pdo;
 

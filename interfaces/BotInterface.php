@@ -1,6 +1,6 @@
 <?php
 
-    namespace Interfaces;
+namespace Interfaces;
 
 interface BotInterface {
     public function handle(string $update);
@@ -8,7 +8,7 @@ interface BotInterface {
     public function handleStartCommand();
     public function prepareTextToQr();
     public function prepareQrToText();
-    public function handleDefaultCommand(string $text, string $called_query);
+    public function handleDefaultCommand(string $text, array $photo, string $called_query);
 }
 
 

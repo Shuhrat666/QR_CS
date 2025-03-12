@@ -1,13 +1,16 @@
 <?php
     declare(strict_types=1);
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
 
-    require __DIR__ . '/vendor/autoload.php';
+    require './vendor/autoload.php';
 
     use Dotenv\Dotenv;
 
     $dotenv = Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 
-    require 'autoload.php';
+    // require 'autoload.php';
     require 'routes.php';
 ?>

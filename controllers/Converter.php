@@ -34,7 +34,8 @@
             $imageFileType = strtolower(pathinfo($_FILES["qrImage"]["name"], PATHINFO_EXTENSION));
             
             if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
-                return "Sorry, only JPG, JPEG, PNG files are allowed.";
+                $decodedText="Sorry, only JPG, JPEG, PNG files are allowed.";
+                return $decodedText;
             }
             
             $qrReader = new QrReader($uploadedFile);

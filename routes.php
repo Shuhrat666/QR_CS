@@ -6,7 +6,13 @@ use Route\Route;
 // require 'vendor/autoload.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+
     Route::handleBot(); 
-} else {
+}
+else if(strpos($_SERVER['REQUEST_URI'], '/api')!==false){
+    
+    Route::handleAPI();
+} 
+else {
     Route::handleWeb(); 
 }

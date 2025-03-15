@@ -25,8 +25,13 @@ class Route {
         echo "No bot payload received.";
     }
   }
+  
 
   public static function handleWeb(): void {
     require 'view/web.php'; 
+  }
+
+  public static function handleAPI():void{
+    require 'API/api.php';
   }
 }

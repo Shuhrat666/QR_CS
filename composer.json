@@ -8,12 +8,14 @@
 
     "autoload": {
         "psr-4": {
+            "Src\\": "./src/",
             "Bot\\": "./controllers/",
             "Web\\": "./controllers/",
             "Route\\": "./",
             "Interfaces\\": "./interfaces/",
             "QR_code\\": "./models",
-            "DB\\": "./"
+            "DB\\": "./",
+            "QR_API\\": "./models"
         }
     }
 }

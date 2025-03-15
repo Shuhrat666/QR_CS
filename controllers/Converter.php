@@ -12,7 +12,7 @@
         public function text2qr($t_text) {
 
             $text = $t_text;
-            $qrCodeFile = "qrcodes/".uniqid() . ".png";
+            $qrCodeFile = "qr_codes/".uniqid() . ".png";
 
             $options = new QROptions([
                 'outputType' => QRCode::OUTPUT_IMAGE_PNG,
